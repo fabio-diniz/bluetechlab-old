@@ -42,7 +42,7 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
         final Map<String, AttributeValueUpdate> entityAttributes = new HashMap<>();
 
         entityAttributes.computeIfAbsent(ATTRIBUTE_ID, key -> computeUpdateValueIfNotNull(entity.getId()));
-        entityAttributes.computeIfAbsent(ATTRIBUTE_AMOUNT, key -> computeUpdateValueIfNotNull(entity.getAmount()));
+        entityAttributes.computeIfAbsent(ATTRIBUTE_AMOUNT, key -> computeUpdateValueIfNotNull(entity.getCurrentAmount()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_DISCOUNT, key -> computeUpdateValueIfNotNull(entity.getDiscount()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_DESCRIPTION, key -> computeUpdateValueIfNotNull(entity.getDescription()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_ORIGINAL_AMOUNT, key -> computeUpdateValueIfNotNull(entity.getOriginalAmount()));
@@ -61,7 +61,22 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
 
     @Override
     protected Map<String, AttributeValueUpdate> mapItemUpdateAttributes(OrderData entity) {
-        return null;
+        final Map<String, AttributeValueUpdate> entityAttributes = new HashMap<>();
+
+        entityAttributes.computeIfAbsent(ATTRIBUTE_AMOUNT, key -> computeUpdateValueIfNotNull(entity.getCurrentAmount()));
+        entityAttributes.computeIfAbsent(ATTRIBUTE_DISCOUNT, key -> computeUpdateValueIfNotNull(entity.getDiscount()));
+        entityAttributes.computeIfAbsent(ATTRIBUTE_DESCRIPTION, key -> computeUpdateValueIfNotNull(entity.getDescription()));
+        entityAttributes.computeIfAbsent(ATTRIBUTE_RESPONSIBLE_USER, key -> computeUpdateValueIfNotNull(entity.getResponsibleUser()));
+
+        final LocalDateTime localDateTime = LocalDateTime.now();
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+        entityAttributes.put(ATTRIBUTE_UPDATED_TIME, AttributeValueUpdate.builder()
+                .value(AttributeValue.builder()
+                        .s(localDateTime.format(formatter))
+                        .build())
+                .build());
+
+        return entityAttributes;
     }
 
     @Override
@@ -87,9 +102,14 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
                 ? new BigDecimal(getAttributeValue(responseAttributes, ATTRIBUTE_DISCOUNT).n())
                 : null;
 
+        final BigDecimal parsedOriginalAmount = getAttributeValue(responseAttributes, ATTRIBUTE_ORIGINAL_AMOUNT).n() != null
+                ? new BigDecimal(getAttributeValue(responseAttributes, ATTRIBUTE_ORIGINAL_AMOUNT).n())
+                : null;
+
         return OrderData.builder()
-                .amount(parsedAmount)
                 .discount(parsedDiscount)
+                .currentAmount(parsedAmount)
+                .originalAmount(parsedOriginalAmount)
                 .id(getAttributeValue(responseAttributes, ATTRIBUTE_ID).s())
                 .description(getAttributeValue(responseAttributes, ATTRIBUTE_DESCRIPTION).s())
                 .responsibleUser(getAttributeValue(responseAttributes, ATTRIBUTE_RESPONSIBLE_USER).s())

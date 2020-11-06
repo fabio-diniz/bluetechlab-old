@@ -17,9 +17,9 @@ public class CreateOrder {
     public String execute(final Order order) {
         return orderRepository.save(
                 OrderData.builder()
-                        .amount(applyDiscount(order))
+                        .currentAmount(applyDiscount(order))
                         .discount(order.getDiscount())
-                        .originalAmount(order.getAmount())
+                        .originalAmount(order.getCurrentAmount())
                         .description(order.getDescription())
                         .responsibleUser(order.getOperator())
                         .build()
@@ -27,6 +27,6 @@ public class CreateOrder {
     }
 
     private BigDecimal applyDiscount(final Order order) {
-        return order.getAmount().subtract(order.getDiscount());
+        return order.getCurrentAmount().subtract(order.getDiscount());
     }
 }

@@ -14,8 +14,8 @@ public class OrderData extends ObjectData<Order> {
     private String id;
     private String description;
     private String responsibleUser;
-    private BigDecimal amount;
     private BigDecimal discount;
+    private BigDecimal currentAmount;
     private BigDecimal originalAmount;
 
     @Override
@@ -23,10 +23,11 @@ public class OrderData extends ObjectData<Order> {
 
         return Order.builder()
                 .id(this.id)
-                .amount(this.amount)
                 .discount(this.discount)
                 .description(this.description)
                 .operator(this.responsibleUser)
+                .currentAmount(this.currentAmount)
+                .originalAmount(this.originalAmount)
                 .build();
     }
 }

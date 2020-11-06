@@ -15,18 +15,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class OrderDTO {
+public class UpdateOrderDTO {
 
     @NotBlank
     private String operator;
 
     @NotBlank
     private String description;
-
-    @NotNull
-    @DecimalMin(value = "5.00")
-    @DecimalMax(value = "100000.00")
-    private BigDecimal amount;
 
     @DecimalMin(value = "0.00")
     @DecimalMax(value = "100000.00")

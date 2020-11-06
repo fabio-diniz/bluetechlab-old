@@ -16,6 +16,7 @@ public class Order {
     private String id;
     private String operator;
     private String description;
-    private BigDecimal amount;
     private BigDecimal discount;
+    private BigDecimal currentAmount;
+    private BigDecimal originalAmount;
 }
