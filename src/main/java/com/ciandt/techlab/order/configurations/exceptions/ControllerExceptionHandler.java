@@ -9,13 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 @ControllerAdvice
-public class ExceptionHandler extends ResponseEntityExceptionHandler {
+public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -26,6 +29,19 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                 status.value(),
                                 extractFieldError(ex.getBindingResult()),
                                 status.getReasonPhrase()
+                        )
+                );
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    protected ResponseEntity<Object> handleResponseStatus(final ResponseStatusException ex, final HttpServletRequest request) {
+        return ResponseEntity
+                .badRequest()
+                .body(
+                        new Error(
+                                ex.getStatus().value(),
+                                ex.getReason(),
+                                ex.getStatus().getReasonPhrase()
                         )
                 );
     }

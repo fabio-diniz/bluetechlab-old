@@ -1,8 +1,10 @@
 package com.ciandt.techlab.order.entrypoints.controllers;
 
+import com.ciandt.techlab.order.configurations.constansts.ErrorsConstants;
 import com.ciandt.techlab.order.entities.Order;
-import com.ciandt.techlab.order.entrypoints.controllers.dto.CreateOrderDTO;
-import com.ciandt.techlab.order.entrypoints.controllers.dto.UpdateOrderDTO;
+import com.ciandt.techlab.order.entrypoints.controllers.dto.RequestCreateOrderDTO;
+import com.ciandt.techlab.order.entrypoints.controllers.dto.RequestUpdateOrderDTO;
+import com.ciandt.techlab.order.entrypoints.controllers.dto.ResponseOrderDTO;
 import com.ciandt.techlab.order.usecases.CreateOrder;
 import com.ciandt.techlab.order.usecases.DeleteOrder;
 import com.ciandt.techlab.order.usecases.GetOrder;
@@ -11,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -20,39 +23,39 @@ import java.math.BigDecimal;
 @RequestMapping("/orders")
 public class OrderController {
 
-    private GetOrder getOrder;
-    private CreateOrder createOrder;
-    private UpdateOrder updateOrder;
-    private DeleteOrder deleteOrder;
+    private final GetOrder getOrder;
+    private final CreateOrder createOrder;
+    private final UpdateOrder updateOrder;
+    private final DeleteOrder deleteOrder;
 
     @PostMapping
-    public ResponseEntity<String> create(@Valid @RequestBody final CreateOrderDTO orderDTO) {
-        final String orderId = createOrder.execute(
-                Order.builder()
-                        .operator(orderDTO.getOperator())
-                        .currentAmount(orderDTO.getAmount())
-                        .description(orderDTO.getDescription())
-                        .discount(orderDTO.getDiscount() == null ? BigDecimal.ZERO : orderDTO.getDiscount())
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
+    public ResponseEntity<ResponseOrderDTO> create(@Valid @RequestBody final RequestCreateOrderDTO orderDTO) {
+        final Order order = Order.builder()
+                .salesman(orderDTO.getSalesman())
+                .currentAmount(orderDTO.getAmount())
+                .description(orderDTO.getDescription())
+                .discount(orderDTO.getDiscount() == null ? BigDecimal.ZERO : orderDTO.getDiscount())
+                .build();
+
+        final Order createdOrder = createOrder.execute(order);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(responseObject(createdOrder));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> update(@PathVariable final String id, @Valid @RequestBody final UpdateOrderDTO orderDTO) {
+    public ResponseEntity<ResponseOrderDTO> update(@PathVariable final String id, @Valid @RequestBody final RequestUpdateOrderDTO orderDTO) {
         final Order updatedOder = updateOrder.execute(id,
                 Order.builder()
-                        .operator(orderDTO.getOperator())
+                        .salesman(orderDTO.getOperator())
                         .description(orderDTO.getDescription())
                         .discount(orderDTO.getDiscount() == null ? BigDecimal.ZERO : orderDTO.getDiscount())
                         .build()
         );
 
-        if (updatedOder == null) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(updatedOder);
-        }
+        checkNullableObject(updatedOder, HttpStatus.NOT_FOUND, ErrorsConstants.ORDER_NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.OK).body(responseObject(updatedOder));
     }
 
     @DeleteMapping("/{id}")
@@ -62,13 +65,25 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrder(@PathVariable final String id) {
+    public ResponseEntity<ResponseOrderDTO> getOrder(@PathVariable final String id) {
         final Order order = getOrder.execute(id);
+        checkNullableObject(order, HttpStatus.NOT_FOUND, ErrorsConstants.ORDER_NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.OK).body(responseObject(order));
+    }
 
-        if (order == null) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body(order);
+    public ResponseOrderDTO responseObject(final Order order) {
+        return ResponseOrderDTO.builder()
+                .id(order.getId())
+                .salesman(order.getSalesman())
+                .discount(order.getDiscount())
+                .amount(order.getCurrentAmount())
+                .description(order.getDescription())
+                .build();
+    }
+
+    public void checkNullableObject(final Object object, final HttpStatus httpStatus, final String message) {
+        if (object == null) {
+            throw new ResponseStatusException(httpStatus, message);
         }
     }
 }

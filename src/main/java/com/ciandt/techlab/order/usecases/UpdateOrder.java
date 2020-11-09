@@ -1,10 +1,13 @@
 package com.ciandt.techlab.order.usecases;
 
+import com.ciandt.techlab.order.configurations.constansts.ErrorsConstants;
 import com.ciandt.techlab.order.entities.Order;
 import com.ciandt.techlab.order.repositories.OrderRepository;
 import com.ciandt.techlab.order.repositories.dto.OrderData;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 
@@ -25,7 +28,7 @@ public class UpdateOrder {
                             .currentAmount(applyDiscount(obtainedOrder.getOriginalAmount(), order))
                             .discount(order.getDiscount())
                             .description(order.getDescription())
-                            .responsibleUser(order.getOperator())
+                            .salesman(order.getSalesman())
                             .build()
             ).toEntity();
         } else {
@@ -34,6 +37,10 @@ public class UpdateOrder {
     }
 
     private BigDecimal applyDiscount(final BigDecimal obtainedAmount, final Order order) {
-        return obtainedAmount.subtract(order.getDiscount());
+        if (obtainedAmount.compareTo(order.getDiscount()) > 0) {
+            return obtainedAmount.subtract(order.getDiscount());
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ErrorsConstants.ORDER_INVALID_DISCOUNT, new IllegalArgumentException());
+        }
     }
 }

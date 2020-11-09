@@ -23,12 +23,12 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
     private static final String TABLE_NAME = "orders";
     private static final String ATTRIBUTE_ID = "id";
     private static final String ATTRIBUTE_AMOUNT = "amount";
+    private static final String ATTRIBUTE_SALESMAN = "salesman";
     private static final String ATTRIBUTE_DISCOUNT = "discount";
     private static final String ATTRIBUTE_DESCRIPTION = "description";
     private static final String ATTRIBUTE_UPDATED_TIME = "updatedTime";
     private static final String ATTRIBUTE_CREATION_TIME = "creationTime";
     private static final String ATTRIBUTE_ORIGINAL_AMOUNT = "originalAmount";
-    private static final String ATTRIBUTE_RESPONSIBLE_USER = "responsibleUser";
 
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
@@ -46,7 +46,7 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
         entityAttributes.computeIfAbsent(ATTRIBUTE_DISCOUNT, key -> computeUpdateValueIfNotNull(entity.getDiscount()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_DESCRIPTION, key -> computeUpdateValueIfNotNull(entity.getDescription()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_ORIGINAL_AMOUNT, key -> computeUpdateValueIfNotNull(entity.getOriginalAmount()));
-        entityAttributes.computeIfAbsent(ATTRIBUTE_RESPONSIBLE_USER, key -> computeUpdateValueIfNotNull(entity.getResponsibleUser()));
+        entityAttributes.computeIfAbsent(ATTRIBUTE_SALESMAN, key -> computeUpdateValueIfNotNull(entity.getSalesman()));
 
         final LocalDateTime localDateTime = LocalDateTime.now();
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
@@ -66,7 +66,7 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
         entityAttributes.computeIfAbsent(ATTRIBUTE_AMOUNT, key -> computeUpdateValueIfNotNull(entity.getCurrentAmount()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_DISCOUNT, key -> computeUpdateValueIfNotNull(entity.getDiscount()));
         entityAttributes.computeIfAbsent(ATTRIBUTE_DESCRIPTION, key -> computeUpdateValueIfNotNull(entity.getDescription()));
-        entityAttributes.computeIfAbsent(ATTRIBUTE_RESPONSIBLE_USER, key -> computeUpdateValueIfNotNull(entity.getResponsibleUser()));
+        entityAttributes.computeIfAbsent(ATTRIBUTE_SALESMAN, key -> computeUpdateValueIfNotNull(entity.getSalesman()));
 
         final LocalDateTime localDateTime = LocalDateTime.now();
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
@@ -112,7 +112,7 @@ public class OrderRepository extends CrudRepository<OrderData, String> {
                 .originalAmount(parsedOriginalAmount)
                 .id(getAttributeValue(responseAttributes, ATTRIBUTE_ID).s())
                 .description(getAttributeValue(responseAttributes, ATTRIBUTE_DESCRIPTION).s())
-                .responsibleUser(getAttributeValue(responseAttributes, ATTRIBUTE_RESPONSIBLE_USER).s())
+                .salesman(getAttributeValue(responseAttributes, ATTRIBUTE_SALESMAN).s())
                 .build();
     }
 }

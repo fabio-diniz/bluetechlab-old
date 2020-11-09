@@ -12,8 +12,8 @@ import java.math.BigDecimal;
 public class OrderData extends ObjectData<Order> {
 
     private String id;
+    private String salesman;
     private String description;
-    private String responsibleUser;
     private BigDecimal discount;
     private BigDecimal currentAmount;
     private BigDecimal originalAmount;
@@ -25,7 +25,7 @@ public class OrderData extends ObjectData<Order> {
                 .id(this.id)
                 .discount(this.discount)
                 .description(this.description)
-                .operator(this.responsibleUser)
+                .salesman(this.salesman)
                 .currentAmount(this.currentAmount)
                 .originalAmount(this.originalAmount)
                 .build();
