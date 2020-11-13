@@ -1,0 +1,7 @@
+amazon:
+  defaultRegion: us-east-2
+  dynamodb:
+    endpoint: http://localhost:8000
+
+featureToggle:
+  useLocalEndpoint: false
