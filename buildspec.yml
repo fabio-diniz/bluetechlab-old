@@ -11,6 +11,3 @@ phases:
     commands:
       - echo "Entered the post-build phase"
       - mv target ./
-artifacts:
-  files:
-    - *
