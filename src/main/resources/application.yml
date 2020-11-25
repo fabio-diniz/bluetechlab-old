@@ -5,3 +5,8 @@ amazon:
 
 featureToggle:
   useLocalEndpoint: false
+
+info:
+  app:
+    name: bluetechlab-order
+    description: teste info fabio
